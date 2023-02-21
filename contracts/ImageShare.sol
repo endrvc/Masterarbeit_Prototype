@@ -11,14 +11,21 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract ImageShare is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, AccessControl {
     using Counters for Counters.Counter;
 
+    // Declaration of ROLES
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+
+    // Declaration of VARIABLES
     Counters.Counter private _tokenIdCounter;
 
+    // Constructor which will be executed at contract creation
+    // Initializer of the Smart Contract will be set as ADMIN and MINTER
     constructor() ERC721("ImageShare", "IMS") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
     }
 
+    // Function for minting of a new Token
+    // Minting is restricted to user with the Role MINTER
     function safeMint(address to, string memory uri) public onlyRole(MINTER_ROLE) {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
