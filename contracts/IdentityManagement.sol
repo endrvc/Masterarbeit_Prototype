@@ -10,10 +10,10 @@ contract IdentityManagement is AccessControl {
     //Metadata for trusted Verifier including mapping and helping variables
     struct Verifier {
         uint id;
-        address verifier_address;
+        bool activ;
         string CID;
         string public_key;
-        bool activ;
+        address verifier_address;
     }
     mapping(address => Verifier) public verifiers;
     Counters.Counter private _verifierIdCounter;
@@ -59,10 +59,10 @@ contract IdentityManagement is AccessControl {
 
     // Functios for verifier metadata maintenance
     // Function for registring new verifier
-    function newVerifier (address _verifier_address, string memory _CID, string memory _public_key, bool _activ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function newVerifier (bool _activ, string memory _CID, string memory _public_key, address _verifier_address) public onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256 _verifierId = _verifierIdCounter.current();
         _verifierIdCounter.increment();
-        verifiers[_verifier_address] = Verifier(_verifierId, _verifier_address, _CID, _public_key, _activ);
+        verifiers[_verifier_address] = Verifier(_verifierId, _activ, _CID, _public_key, _verifier_address);
         grantRole(VERIFIER_ROLE, _verifier_address);
     }
 
