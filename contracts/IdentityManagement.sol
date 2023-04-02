@@ -22,7 +22,6 @@ contract IdentityManagement is AccessControl {
     struct Identity {
         uint id;
         uint verified_by;
-        uint[] approvedidentities;
         bool activ;
         string CID;
         string public_key;
@@ -92,7 +91,7 @@ contract IdentityManagement is AccessControl {
     function newIdentity (bool _activ, string memory _CID, string memory _public_key, address _identity_address, bytes32 _role) public onlyRole(VERIFIER_ROLE) {
         uint256 _identityId = _identityIdCounter.current();
         _identityIdCounter.increment();
-        identities[_identityId] = Identity(_identityId, verifiers[msg.sender].id, new uint[](0), _activ, _CID, _public_key, _identity_address, _role);
+        identities[_identityId] = Identity(_identityId, verifiers[msg.sender].id, _activ, _CID, _public_key, _identity_address, _role);
         grantRole(_role, _identity_address);
     }
 
