@@ -28,7 +28,7 @@ contract IdentityManagement is AccessControl {
         address identity_address;
         bytes32 role;
     }
-    mapping(uint => Identity) public identities;
+    mapping(address => Identity) public identities;
     Counters.Counter private _identityIdCounter;
 
     // Declaration of ROLES
@@ -51,8 +51,8 @@ contract IdentityManagement is AccessControl {
         require(verifiers[_verifier_address].verifier_address == msg.sender, "Unauthorized access");
     _;
     }
-    modifier onlyAuthorizedIdentity(uint _identityId) {
-        require(identities[_identityId].identity_address == msg.sender, "Unauthorized access");
+    modifier onlyAuthorizedIdentity(address _indentity_address) {
+        require(identities[_indentity_address].identity_address == msg.sender, "Unauthorized access");
     _;
     }
 
@@ -91,29 +91,29 @@ contract IdentityManagement is AccessControl {
     function newIdentity (bool _activ, string memory _CID, string memory _public_key, address _identity_address, bytes32 _role) public onlyRole(VERIFIER_ROLE) {
         uint256 _identityId = _identityIdCounter.current();
         _identityIdCounter.increment();
-        identities[_identityId] = Identity(_identityId, verifiers[msg.sender].id, _activ, _CID, _public_key, _identity_address, _role);
+        identities[_identity_address] = Identity(_identityId, verifiers[msg.sender].id, _activ, _CID, _public_key, _identity_address, _role);
         grantRole(_role, _identity_address);
     }
 
         // Function for changing the address of a identity, only allowed by identity itself
-    function changeIdentityAddress(uint _identityId, address _new_identity_address) public onlyAuthorizedIdentity(_identityId) {
-        identities[_identityId].identity_address = _new_identity_address;
-        grantRole(identities[_identityId].role, _new_identity_address);
+    function changeIdentityAddress(address _identity_address, address _new_identity_address) public onlyAuthorizedIdentity(_identity_address) {
+        identities[_identity_address].identity_address = _new_identity_address;
+        grantRole(identities[_identity_address].role, _new_identity_address);
     }
 
     // Function for changing the CID of a identity, only allowed by verifier
-    function changeIdentityCID(uint _identityId, string memory _new_CID) public onlyRole(VERIFIER_ROLE) {
-        identities[_identityId].CID = _new_CID;
-        identities[_identityId].verified_by = verifiers[msg.sender].id;
+    function changeIdentityCID(address _identity_address, string memory _new_CID) public onlyRole(VERIFIER_ROLE) {
+        identities[_identity_address].CID = _new_CID;
+        identities[_identity_address].verified_by = verifiers[msg.sender].id;
     }
 
     // Function for changing the public key of a identity, only allowed by identity itself
-    function changeIdentityPublicKey(uint _identityId, string memory _new_public_key) public onlyAuthorizedIdentity(_identityId) {
-        identities[_identityId].public_key = _new_public_key;
+    function changeIdentityPublicKey(address _identity_address, string memory _new_public_key) public onlyAuthorizedIdentity(_identity_address) {
+        identities[_identity_address].public_key = _new_public_key;
     }
 
     // Function for changing the activation status of a identity, only allowed by identity itself
-    function changeIdentityActivation(uint _identityId, bool _new_activ) public onlyAuthorizedIdentity(_identityId) {
-        identities[_identityId].activ = _new_activ;
+    function changeIdentityActivation(address _identity_address, bool _new_activ) public onlyAuthorizedIdentity(_identity_address) {
+        identities[_identity_address].activ = _new_activ;
     }
 }
