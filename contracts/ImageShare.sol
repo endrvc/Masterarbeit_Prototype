@@ -39,7 +39,7 @@ contract ImageShare is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnabl
     event ApprovalRevoked(address _identityAddress, address _patientAddress);
     
     // Function to request approval from a patient
-    function requestApproval(address _identityAddress, address _patientAddress) public onlyAuthorizedIdentity(_patientAddress) {
+    function requestApproval(address _identityAddress, address _patientAddress) public {
     require(identities[_identityAddress].role == PHYSICIAN_ROLE || identities[_identityAddress].role == HOSPITAL_ROLE, "Only identities with role Physician or Hospital can request approval.");
     require(identities[_patientAddress].role == PATIENT_ROLE, "Only identities with role Patient can grant approvals.");
     approvals[_patientAddress][_identityAddress] = false;
@@ -62,7 +62,7 @@ contract ImageShare is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnabl
     emit ApprovalRevoked(_identityAddress, _patientAddress);
     }
 
-    // The following functions are overrides required by Solidity as functions are inherited in multiple contracts.
+    // The following functions are overrides required by Solidity as functions are inherited in multiple contracts (OpenZeppelin Standard Library).
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
         internal
         override(ERC721, ERC721Enumerable)

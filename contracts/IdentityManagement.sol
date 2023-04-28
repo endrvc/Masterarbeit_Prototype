@@ -57,7 +57,7 @@ contract IdentityManagement is AccessControl {
     }
 
     // Functios for verifier metadata maintenance
-    // Function for registring new verifier
+    // Function for registring new verifiera
     function newVerifier (bool _activ, string memory _CID, string memory _public_key, address _verifier_address) public onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256 _verifierId = _verifierIdCounter.current();
         _verifierIdCounter.increment();
