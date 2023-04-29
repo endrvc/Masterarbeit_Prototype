@@ -20,7 +20,8 @@ contract ImageShare is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnabl
     // Function for minting of a new Token
     // Minting is restricted to user with the Role MINTER
     Counters.Counter private _tokenIdCounter;
-    function safeMint(address to, string memory uri) public onlyRole(HOSPITAL_ROLE) onlyRole(PHYSICIAN_ROLE) {
+    function safeMint(address to, string memory uri) public {
+        require(identities[msg.sender].role == HOSPITAL_ROLE || identities[msg.sender].role == PHYSICIAN_ROLE, "Only Physician and Hospitals can mint new Token");
         require(identities[to].role == PATIENT_ROLE, "Mint only possible for patients");
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
@@ -32,34 +33,34 @@ contract ImageShare is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnabl
     mapping (address => mapping(address => bool)) approvals;
 
     // Event to log approval actions
-    event ApprovalRequested(address _identityAddress, address _patientAddress);
+    event ApprovalRequested(address _patientAddress, address _identityAddress);
     // Event to log approval granted
-    event ApprovalGranted(address _identityAddress, address _patientAddress);
+    event ApprovalGranted(address _patientAddress, address _identityAddress);
     // Event to log approval revoked
-    event ApprovalRevoked(address _identityAddress, address _patientAddress);
+    event ApprovalRevoked(address _patientAddress, address _identityAddress);
     
     // Function to request approval from a patient
-    function requestApproval(address _identityAddress, address _patientAddress) public {
-    require(identities[_identityAddress].role == PHYSICIAN_ROLE || identities[_identityAddress].role == HOSPITAL_ROLE, "Only identities with role Physician or Hospital can request approval.");
+    function requestApproval(address _patientAddress) public {
+    require(identities[msg.sender].role == PHYSICIAN_ROLE || identities[msg.sender].role == HOSPITAL_ROLE, "Only identities with role Physician or Hospital can request approval.");
     require(identities[_patientAddress].role == PATIENT_ROLE, "Only identities with role Patient can grant approvals.");
-    approvals[_patientAddress][_identityAddress] = false;
-    emit ApprovalRequested(_identityAddress, _patientAddress);
+    approvals[_patientAddress][msg.sender] = false;
+    emit ApprovalRequested(_patientAddress, msg.sender);
     }
 
     // Function to grant approval to a physician or hospital
-    function grantApproval(address _identityAddress, address _patientAddress) public onlyAuthorizedIdentity(_patientAddress) {
+    function grantApproval(address _identityAddress) public {
     require(identities[_identityAddress].role == PHYSICIAN_ROLE || identities[_identityAddress].role == HOSPITAL_ROLE, "Only identities with role Physician or Hospital can request approval.");
-    require(identities[_patientAddress].role == PATIENT_ROLE, "Only identities with role Patient can grant approvals.");
-    approvals[_patientAddress][_identityAddress] = false;
-    emit ApprovalGranted(_identityAddress, _patientAddress);
+    require(identities[msg.sender].role == PATIENT_ROLE, "Only identities with role Patient can grant approvals.");
+    approvals[msg.sender][_identityAddress] = false;
+    emit ApprovalGranted(msg.sender, _identityAddress);
     }
 
     // Function to revoke approval from a physician or hospital
-    function revokeApproval(address _identityAddress, address _patientAddress) public onlyAuthorizedIdentity(_patientAddress) {
+    function revokeApproval(address _identityAddress) public {
     require(identities[_identityAddress].role == PHYSICIAN_ROLE || identities[_identityAddress].role == HOSPITAL_ROLE, "Only identities with role Physician or Hospital have approvals to be revoked");
-    require(identities[_patientAddress].role == PATIENT_ROLE, "Only identities with role Patient revoke approvals.");
-    approvals[_patientAddress][_identityAddress] = true;
-    emit ApprovalRevoked(_identityAddress, _patientAddress);
+    require(identities[msg.sender].role == PATIENT_ROLE, "Only identities with role Patient revoke approvals.");
+    approvals[msg.sender][_identityAddress] = true;
+    emit ApprovalRevoked(msg.sender, _identityAddress);
     }
 
     // The following functions are overrides required by Solidity as functions are inherited in multiple contracts (OpenZeppelin Standard Library).

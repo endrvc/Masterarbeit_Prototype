@@ -38,7 +38,7 @@ contract IdentityManagement is AccessControl {
     bytes32 public constant HOSPITAL_ROLE = keccak256("HOSPITAL_ROLE");
 
     // Constructor which will be executed at contract creation
-    // Initializer of the Smart Contract will be set as ADMIN and MINTER
+    // Initializer of the Smart Contract will be set as ADMIN
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setRoleAdmin(PATIENT_ROLE, VERIFIER_ROLE); // make VERIFIER_ROLE the Admin role of PATIENT_ROLE, so it can be granted by VERIFIER_ROLE
@@ -66,8 +66,8 @@ contract IdentityManagement is AccessControl {
     }
 
     // Function for changing the address of a verifier, only allowed by verifier itself
-    function changeVerifierAddress(address _verifier_address, address _new_verifier_address) public onlyAuthorizedVerifier(_verifier_address) {
-        verifiers[_verifier_address].verifier_address = _new_verifier_address;
+    function changeVerifierAddress(address _new_verifier_address) public onlyAuthorizedVerifier(msg.sender) {
+        verifiers[msg.sender].verifier_address = _new_verifier_address;
         grantRole(VERIFIER_ROLE, _new_verifier_address);
     }
 
@@ -77,13 +77,13 @@ contract IdentityManagement is AccessControl {
     }
 
     // Function for changing the public key of a verifier, only allowed by verifier itself
-    function changeVerifierPublicKey(address _verifier_address, string memory _new_public_key) public onlyAuthorizedVerifier(_verifier_address) {
-        verifiers[_verifier_address].public_key = _new_public_key;
+    function changeVerifierPublicKey(string memory _new_public_key) public onlyAuthorizedVerifier(msg.sender) {
+        verifiers[msg.sender].public_key = _new_public_key;
     }
 
     // Function for changing the activation status of a verifier, only allowed by verifier itself
-    function changeVerifierActivation(address _verifier_address, bool _new_activ) public onlyAuthorizedVerifier(_verifier_address) {
-        verifiers[_verifier_address].activ = _new_activ;
+    function changeVerifierActivation(bool _new_activ) public onlyAuthorizedVerifier(msg.sender) {
+        verifiers[msg.sender].activ = _new_activ;
     }
 
     // Functios for identity metadata maintenance
@@ -96,9 +96,9 @@ contract IdentityManagement is AccessControl {
     }
 
         // Function for changing the address of a identity, only allowed by identity itself
-    function changeIdentityAddress(address _identity_address, address _new_identity_address) public onlyAuthorizedIdentity(_identity_address) {
-        identities[_identity_address].identity_address = _new_identity_address;
-        grantRole(identities[_identity_address].role, _new_identity_address);
+    function changeIdentityAddress(address _new_identity_address) public onlyAuthorizedIdentity(msg.sender) {
+        identities[msg.sender].identity_address = _new_identity_address;
+        grantRole(identities[msg.sender].role, _new_identity_address);
     }
 
     // Function for changing the CID of a identity, only allowed by verifier
@@ -108,12 +108,12 @@ contract IdentityManagement is AccessControl {
     }
 
     // Function for changing the public key of a identity, only allowed by identity itself
-    function changeIdentityPublicKey(address _identity_address, string memory _new_public_key) public onlyAuthorizedIdentity(_identity_address) {
-        identities[_identity_address].public_key = _new_public_key;
+    function changeIdentityPublicKey(string memory _new_public_key) public onlyAuthorizedIdentity(msg.sender) {
+        identities[msg.sender].public_key = _new_public_key;
     }
 
     // Function for changing the activation status of a identity, only allowed by identity itself
-    function changeIdentityActivation(address _identity_address, bool _new_activ) public onlyAuthorizedIdentity(_identity_address) {
-        identities[_identity_address].activ = _new_activ;
+    function changeIdentityActivation(bool _new_activ) public onlyAuthorizedIdentity(msg.sender) {
+        identities[msg.sender].activ = _new_activ;
     }
 }
