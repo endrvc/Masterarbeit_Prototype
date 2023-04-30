@@ -32,6 +32,11 @@ contract ImageShare is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnabl
     // Mapping for Approvals from Patient to Physician/Hospital including flag if approval is active(granted) or not (requested/revoked)
     mapping (address => mapping(address => bool)) approvals;
 
+    // Read the Approval Mapping Table
+    function getApprovalMapping(address _patientAddress, address _identityAddress) public view returns (bool) {
+    return approvals[_patientAddress][_identityAddress];
+    }
+
     // Event to log approval actions
     event ApprovalRequested(address _patientAddress, address _identityAddress);
     // Event to log approval granted
@@ -42,16 +47,16 @@ contract ImageShare is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnabl
     // Function to request approval from a patient
     function requestApproval(address _patientAddress) public {
     require(identities[msg.sender].role == PHYSICIAN_ROLE || identities[msg.sender].role == HOSPITAL_ROLE, "Only identities with role Physician or Hospital can request approval.");
-    require(identities[_patientAddress].role == PATIENT_ROLE, "Only identities with role Patient can grant approvals.");
+    require(identities[_patientAddress].role == PATIENT_ROLE, "Only identities with role Patient can be requested for approvals.");
     approvals[_patientAddress][msg.sender] = false;
     emit ApprovalRequested(_patientAddress, msg.sender);
     }
 
     // Function to grant approval to a physician or hospital
     function grantApproval(address _identityAddress) public {
-    require(identities[_identityAddress].role == PHYSICIAN_ROLE || identities[_identityAddress].role == HOSPITAL_ROLE, "Only identities with role Physician or Hospital can request approval.");
+    require(identities[_identityAddress].role == PHYSICIAN_ROLE || identities[_identityAddress].role == HOSPITAL_ROLE, "Only identities with role Physician or Hospital can be subject to approval.");
     require(identities[msg.sender].role == PATIENT_ROLE, "Only identities with role Patient can grant approvals.");
-    approvals[msg.sender][_identityAddress] = false;
+    approvals[msg.sender][_identityAddress] = true;
     emit ApprovalGranted(msg.sender, _identityAddress);
     }
 
@@ -59,7 +64,7 @@ contract ImageShare is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnabl
     function revokeApproval(address _identityAddress) public {
     require(identities[_identityAddress].role == PHYSICIAN_ROLE || identities[_identityAddress].role == HOSPITAL_ROLE, "Only identities with role Physician or Hospital have approvals to be revoked");
     require(identities[msg.sender].role == PATIENT_ROLE, "Only identities with role Patient revoke approvals.");
-    approvals[msg.sender][_identityAddress] = true;
+    approvals[msg.sender][_identityAddress] = false;
     emit ApprovalRevoked(msg.sender, _identityAddress);
     }
 
