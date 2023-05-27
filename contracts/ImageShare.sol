@@ -12,13 +12,13 @@ contract ImageShare is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnabl
     using Counters for Counters.Counter;
 
     // Constructor which will be executed at contract creation
-    // Initializer of the Smart Contract will be set as ADMIN and MINTER
+    // Initializer of the Smart Contract will be set as ADMIN
     constructor() ERC721("ImageShare", "IMS") {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     // Function for minting of a new Token
-    // Minting is restricted to user with the Role MINTER
+    // Minting is restricted to user with the Role Physician and Hospital to the role Patient
     Counters.Counter private _tokenIdCounter;
     function safeMint(address to, string memory uri) public {
         require(identities[msg.sender].role == HOSPITAL_ROLE || identities[msg.sender].role == PHYSICIAN_ROLE, "Only Physician and Hospitals can mint new Token");
@@ -29,7 +29,7 @@ contract ImageShare is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnabl
         _setTokenURI(tokenId, uri);
     }
 
-    // Mapping for Approvals from Patient to Physician/Hospital including flag if approval is active(granted) or not (requested/revoked)
+    // Mapping for Approvals from Patient to Physician/Hospital including flag if approval is active (granted) or not (requested/revoked)
     mapping (address => mapping(address => bool)) approvals;
 
     // Read the Approval Mapping Table
@@ -68,7 +68,7 @@ contract ImageShare is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnabl
     emit ApprovalRevoked(msg.sender, _identityAddress);
     }
 
-    // The following functions are overrides required by Solidity as functions are inherited in multiple contracts (OpenZeppelin Standard Library).
+    // The following functions are overrides required by Solidity as functions are inherited from multiple contracts (OpenZeppelin Standard Library).
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
         internal
         override(ERC721, ERC721Enumerable)
